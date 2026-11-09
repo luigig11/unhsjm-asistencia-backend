@@ -1,0 +1,6 @@
+@unhsjm_asistencia_backend_HostAddress = http://localhost:5089
+
+GET {{unhsjm_asistencia_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

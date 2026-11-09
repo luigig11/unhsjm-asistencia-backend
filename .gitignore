@@ -1,0 +1,65 @@
+# ==============================================================================
+# ARCHIVOS DE COMPILACIÓN Y SALIDA (.NET)
+# ==============================================================================
+bin/
+obj/
+out/
+publish/
+
+# ==============================================================================
+# ARCHIVOS ESPECÍFICOS DEL USUARIO Y DEL IDE
+# ==============================================================================
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code (ignora el workspace personal pero permite compartir tareas si existen)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# ==============================================================================
+# RESULTADOS DE PRUEBAS UNITARIAS Y REPORTES
+# ==============================================================================
+TestResults/
+[Tt]est[Rr]esult*/
+coverage.json
+*.cobertura.xml
+
+# ==============================================================================
+# ARCHIVOS DE CONFIGURACIÓN CON SECRETOS / LOCALES
+# ==============================================================================
+# Permite subir la plantilla base appsettings.json, pero ignora configuraciones locales
+appsettings.*.local.json
+appsettings.Local.json
+
+# Secretos de usuario (.NET User Secrets)
+secrets.json
+
+# Variables de entorno
+.env
+.env.local
+
+# ==============================================================================
+# ARCHIVOS TEMPORALES Y LOGS
+# ==============================================================================
+*.log
+logs/
+*.tmp
+*.temp
+
+# ==============================================================================
+# SISTEMA OPERATIVO
+# ==============================================================================
+.DS_Store
+Thumbs.db
+desktop.ini
