@@ -42,8 +42,6 @@ namespace unhsjm_asistencia_backend
                 app.MapOpenApi();
             }
 
-            app.UseHttpsRedirection();
-
             app.UseCors("AllowFrontend");
 
             app.UseAuthorization();
