@@ -95,6 +95,7 @@ namespace unhsjm_asistencia_backend.Controllers
                     MateriaNombre = mpg.IdMallaCurricularNavigation.IdMateriaNavigation.Nombre,
                     GrupoCodigo = mpg.IdGrupoNavigation.Codigo,
                     AulaCodigo = sesion.IdAulaNavigation.Codigo,
+                    AulaNombre = sesion.IdAulaNavigation.Nombre,
                     DocenteTitularNombre = $"{titular.Nombre} {titular.Apellido}",
                     FechaInicio = sesion.FechaInicio,
                     FechaFin = sesion.FechaFin

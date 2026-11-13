@@ -96,7 +96,7 @@ namespace unhsjm_asistencia_backend.Controllers
 
             return Ok(new AuthResponseDto
             {
-                AccessToken = $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{tokenFake}",
+                AccessToken = $"UNHSJM.{user.Id}.{tokenFake}",
                 RefreshToken = refreshFake,
                 ExpiresIn = 3600,
                 Usuario = new UsuarioSesionDto
@@ -218,11 +218,43 @@ namespace unhsjm_asistencia_backend.Controllers
         [HttpGet("me")]
         public async Task<ActionResult<UserProfileDto>> GetPerfilActual()
         {
-            var user = await _context.Usuarios
-                .Include(u => u.IdRolNavigation)
-                .Include(u => u.Docente)
-                .Include(u => u.AuthUser)
-                .FirstOrDefaultAsync(u => u.Activo);
+            var authHeader = Request.Headers["Authorization"].ToString();
+            Usuario? user = null;
+
+            if (!string.IsNullOrEmpty(authHeader))
+            {
+                var cleanToken = authHeader.StartsWith("Bearer ") ? authHeader.Substring(7).Trim() : authHeader.Trim();
+                if (cleanToken.StartsWith("UNHSJM."))
+                {
+                    var parts = cleanToken.Substring("UNHSJM.".Length).Split('.');
+                    if (parts.Length > 0 && Guid.TryParse(parts[0], out var tokenUserId))
+                    {
+                        user = await _context.Usuarios
+                            .Include(u => u.IdRolNavigation)
+                            .Include(u => u.Docente)
+                            .Include(u => u.AuthUser)
+                            .FirstOrDefaultAsync(u => u.Activo && u.Id == tokenUserId);
+                    }
+                }
+            }
+
+            if (user == null && Guid.TryParse(Request.Query["idUsuario"], out var qUserId))
+            {
+                user = await _context.Usuarios
+                    .Include(u => u.IdRolNavigation)
+                    .Include(u => u.Docente)
+                    .Include(u => u.AuthUser)
+                    .FirstOrDefaultAsync(u => u.Activo && u.Id == qUserId);
+            }
+
+            if (user == null)
+            {
+                user = await _context.Usuarios
+                    .Include(u => u.IdRolNavigation)
+                    .Include(u => u.Docente)
+                    .Include(u => u.AuthUser)
+                    .FirstOrDefaultAsync(u => u.Activo);
+            }
 
             if (user == null)
             {

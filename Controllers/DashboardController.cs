@@ -102,6 +102,42 @@ namespace unhsjm_asistencia_backend.Controllers
             var inicioHoy = hoyUtc.Date;
             var finHoy = inicioHoy.AddDays(1).AddTicks(-1);
 
+            Guid? targetDocenteId = null;
+
+            if (idDocente.HasValue)
+            {
+                var esDocenteId = await _context.Docentes.AnyAsync(d => d.Id == idDocente.Value);
+                if (esDocenteId)
+                {
+                    targetDocenteId = idDocente.Value;
+                }
+                else
+                {
+                    var docPorUsuario = await _context.Docentes.FirstOrDefaultAsync(d => d.IdUsuario == idDocente.Value);
+                    if (docPorUsuario != null)
+                    {
+                        targetDocenteId = docPorUsuario.Id;
+                    }
+                }
+            }
+
+            if (!targetDocenteId.HasValue && Request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                var raw = authHeader.ToString().Replace("Bearer ", "").Trim();
+                if (raw.StartsWith("UNHSJM."))
+                {
+                    var parts = raw.Split('.');
+                    if (parts.Length >= 2 && Guid.TryParse(parts[1], out var userId))
+                    {
+                        var doc = await _context.Docentes.FirstOrDefaultAsync(d => d.IdUsuario == userId);
+                        if (doc != null)
+                        {
+                            targetDocenteId = doc.Id;
+                        }
+                    }
+                }
+            }
+
             var query = _context.Calendarios
                 .Include(c => c.Asistencium)
                 .Include(c => c.IdAulaNavigation)
@@ -110,13 +146,19 @@ namespace unhsjm_asistencia_backend.Controllers
                 .Include(c => c.IdMateriaPorGrupoNavigation)
                     .ThenInclude(mpg => mpg.IdMallaCurricularNavigation)
                         .ThenInclude(mc => mc.IdMateriaNavigation)
-                .Where(c => c.Activo && c.FechaInicio >= inicioHoy && c.FechaInicio <= finHoy);
+                .Where(c => c.Activo);
 
-            if (idDocente.HasValue)
+            if (targetDocenteId.HasValue)
             {
                 query = query.Where(c =>
-                    c.IdMateriaPorGrupoNavigation.IdDocente == idDocente.Value ||
-                    (c.Asistencium != null && c.Asistencium.IdDocenteSustituto == idDocente.Value));
+                    c.IdMateriaPorGrupoNavigation.IdDocente == targetDocenteId.Value ||
+                    (c.Asistencium != null && c.Asistencium.IdDocenteSustituto == targetDocenteId.Value));
+            }
+
+            var haySesionesHoy = await query.AnyAsync(c => c.FechaInicio >= inicioHoy && c.FechaInicio <= finHoy);
+            if (haySesionesHoy)
+            {
+                query = query.Where(c => c.FechaInicio >= inicioHoy && c.FechaInicio <= finHoy);
             }
 
             var sesiones = await query
@@ -134,7 +176,7 @@ namespace unhsjm_asistencia_backend.Controllers
                     FechaFin = c.FechaFin,
                     IdAsistencia = c.Asistencium != null ? c.Asistencium.Id : null,
                     ActaRegistrada = c.Asistencium != null,
-                    EsSustituto = idDocente.HasValue && c.Asistencium != null && c.Asistencium.IdDocenteSustituto == idDocente.Value
+                    EsSustituto = targetDocenteId.HasValue && c.Asistencium != null && c.Asistencium.IdDocenteSustituto == targetDocenteId.Value
                 })
                 .ToListAsync();
 

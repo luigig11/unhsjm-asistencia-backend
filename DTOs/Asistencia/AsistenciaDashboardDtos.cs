@@ -74,6 +74,7 @@ namespace unhsjm_asistencia_backend.DTOs.Asistencia
         public string MateriaNombre { get; set; } = null!;
         public string GrupoCodigo { get; set; } = null!;
         public string AulaCodigo { get; set; } = null!;
+        public string? AulaNombre { get; set; }
         public string DocenteTitularNombre { get; set; } = null!;
         public DateTime FechaInicio { get; set; }
         public DateTime FechaFin { get; set; }
