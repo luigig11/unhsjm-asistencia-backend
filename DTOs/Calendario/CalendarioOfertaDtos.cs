@@ -282,6 +282,8 @@ namespace unhsjm_asistencia_backend.DTOs.Calendario
 
     public class UpdateCalendarioSemanalDto
     {
+        public Guid? IdMateriaPorGrupo { get; set; }
+
         [Required]
         public Guid IdAula { get; set; }
 

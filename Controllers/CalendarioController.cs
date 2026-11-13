@@ -42,6 +42,42 @@ namespace unhsjm_asistencia_backend.Controllers
             return Ok(items);
         }
 
+        [HttpPost("periodos-escolares")]
+        public async Task<ActionResult<PeriodoEscolarDto>> CrearPeriodoEscolar([FromBody] CreatePeriodoEscolarDto dto)
+        {
+            var exists = await _context.PeriodoEscolars.AnyAsync(p => p.NombrePeriodoEscolar == dto.NombrePeriodoEscolar.Trim());
+            if (exists)
+            {
+                return Conflict(new { status = 409, error = "CONFLICT", message = "Ya existe un período escolar con este nombre." });
+            }
+
+            if (dto.FechaFin <= dto.FechaInicio)
+            {
+                return BadRequest(new { status = 400, error = "BAD_REQUEST", message = "La fecha de fin debe ser posterior a la fecha de inicio." });
+            }
+
+            var periodo = new PeriodoEscolar
+            {
+                Id = Guid.NewGuid(),
+                NombrePeriodoEscolar = dto.NombrePeriodoEscolar.Trim(),
+                FechaInicio = dto.FechaInicio,
+                FechaFin = dto.FechaFin,
+                Activo = dto.Activo
+            };
+
+            _context.PeriodoEscolars.Add(periodo);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(201, new PeriodoEscolarDto
+            {
+                Id = periodo.Id,
+                NombrePeriodoEscolar = periodo.NombrePeriodoEscolar,
+                FechaInicio = periodo.FechaInicio,
+                FechaFin = periodo.FechaFin,
+                Activo = periodo.Activo
+            });
+        }
+
         [HttpGet("feriados")]
         public async Task<ActionResult<List<FeriadoDto>>> ListarFeriados([FromQuery] Guid? idPeriodoEscolar, [FromQuery] Guid? idTipoEvento, [FromQuery] bool? activo)
         {
@@ -82,6 +118,49 @@ namespace unhsjm_asistencia_backend.Controllers
                 .ToListAsync();
 
             return Ok(items);
+        }
+
+        [HttpPost("feriados")]
+        public async Task<ActionResult<FeriadoDto>> CrearFeriado([FromBody] CreateFeriadoDto dto)
+        {
+            var periodo = await _context.PeriodoEscolars.FindAsync(dto.IdPeriodoEscolar);
+            if (periodo == null)
+            {
+                return BadRequest(new { status = 400, error = "BAD_REQUEST", message = "El período escolar especificado no existe." });
+            }
+
+            var tipoEvento = await _context.TipoEventos.FindAsync(dto.IdTipoEvento);
+            if (tipoEvento == null)
+            {
+                return BadRequest(new { status = 400, error = "BAD_REQUEST", message = "El tipo de evento especificado no existe." });
+            }
+
+            var feriado = new Feriado
+            {
+                Id = Guid.NewGuid(),
+                IdPeriodoEscolar = dto.IdPeriodoEscolar,
+                IdTipoEvento = dto.IdTipoEvento,
+                Nombre = dto.Nombre.Trim(),
+                FechaInicio = DateTime.SpecifyKind(dto.FechaInicio, DateTimeKind.Utc),
+                FechaFin = DateTime.SpecifyKind(dto.FechaFin, DateTimeKind.Utc),
+                Activo = dto.Activo
+            };
+
+            _context.Feriados.Add(feriado);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(201, new FeriadoDto
+            {
+                Id = feriado.Id,
+                IdPeriodoEscolar = feriado.IdPeriodoEscolar,
+                IdTipoEvento = feriado.IdTipoEvento,
+                TipoEventoCodigo = tipoEvento.Codigo,
+                TipoEventoNombre = tipoEvento.Nombre,
+                Nombre = feriado.Nombre,
+                FechaInicio = feriado.FechaInicio,
+                FechaFin = feriado.FechaFin,
+                Activo = feriado.Activo
+            });
         }
 
         [HttpGet("instancias-academicas")]
@@ -134,125 +213,54 @@ namespace unhsjm_asistencia_backend.Controllers
             return Ok(items);
         }
 
-        [HttpGet("grupos")]
-        public async Task<ActionResult<List<GrupoDto>>> ListarGrupos([FromQuery] Guid? idInstanciaAcademica, [FromQuery] bool? activo)
+        [HttpPost("instancias-academicas")]
+        public async Task<ActionResult<InstanciaAcademicaDto>> CrearInstanciaAcademica([FromBody] CreateInstanciaDto dto)
         {
-            var query = _context.Grupos
-                .Include(g => g.IdInstanciaAcademicaNavigation)
-                .AsNoTracking()
-                .AsQueryable();
-
-            if (idInstanciaAcademica.HasValue)
+            var periodo = await _context.PeriodoEscolars.FindAsync(dto.IdPeriodoEscolar);
+            if (periodo == null)
             {
-                query = query.Where(g => g.IdInstanciaAcademica == idInstanciaAcademica.Value);
+                return BadRequest(new { status = 400, error = "BAD_REQUEST", message = "El período escolar especificado no existe." });
             }
 
-            if (activo.HasValue)
+            var detallePlan = await _context.DetallePlanAcademicos
+                .Include(d => d.IdPlanAcademicoNavigation)
+                .Include(d => d.IdCicloAcademicoNavigation)
+                .Include(d => d.IdPeriodoAcademicoNavigation)
+                .FirstOrDefaultAsync(d => d.Id == dto.IdDetallePlanAcademico);
+
+            if (detallePlan == null)
             {
-                query = query.Where(g => g.Activo == activo.Value);
+                return BadRequest(new { status = 400, error = "BAD_REQUEST", message = "El detalle de plan académico especificado no existe." });
             }
 
-            var items = await query
-                .OrderBy(g => g.Codigo)
-                .Select(g => new GrupoDto
-                {
-                    Id = g.Id,
-                    IdInstanciaAcademica = g.IdInstanciaAcademica,
-                    InstanciaNombre = g.IdInstanciaAcademicaNavigation.Nombre,
-                    Codigo = g.Codigo,
-                    Nombre = g.Nombre,
-                    Cupo = g.Cupo,
-                    Activo = g.Activo
-                })
-                .ToListAsync();
-
-            return Ok(items);
-        }
-
-        [HttpGet("materias-por-grupo")]
-        public async Task<ActionResult<List<MateriaPorGrupoDto>>> ListarMateriasPorGrupo([FromQuery] Guid? idGrupo, [FromQuery] Guid? idDocente, [FromQuery] bool? activo)
-        {
-            var query = _context.MateriaPorGrupos
-                .Include(m => m.IdGrupoNavigation)
-                .Include(m => m.IdMallaCurricularNavigation)
-                    .ThenInclude(mc => mc.IdMateriaNavigation)
-                .Include(m => m.IdDocenteNavigation)
-                    .ThenInclude(d => d.IdUsuarioNavigation)
-                .Include(m => m.InscripcionGrupos)
-                .AsNoTracking()
-                .AsQueryable();
-
-            if (idGrupo.HasValue)
+            var instancia = new InstanciaAcademica
             {
-                query = query.Where(m => m.IdGrupo == idGrupo.Value);
-            }
+                Id = Guid.NewGuid(),
+                IdPeriodoEscolar = dto.IdPeriodoEscolar,
+                IdDetallePlanAcademico = dto.IdDetallePlanAcademico,
+                Nombre = dto.Nombre.Trim(),
+                FechaInicio = dto.FechaInicio,
+                FechaFin = dto.FechaFin,
+                Activo = dto.Activo
+            };
 
-            if (idDocente.HasValue)
+            _context.InstanciaAcademicas.Add(instancia);
+            await _context.SaveChangesAsync();
+
+            return StatusCode(201, new InstanciaAcademicaDto
             {
-                query = query.Where(m => m.IdDocente == idDocente.Value);
-            }
-
-            if (activo.HasValue)
-            {
-                query = query.Where(m => m.Activo == activo.Value);
-            }
-
-            var items = await query
-                .OrderBy(m => m.IdGrupoNavigation.Codigo)
-                .Select(m => new MateriaPorGrupoDto
-                {
-                    Id = m.Id,
-                    IdGrupo = m.IdGrupo,
-                    GrupoCodigo = m.IdGrupoNavigation.Codigo,
-                    IdMallaCurricular = m.IdMallaCurricular,
-                    IdMateria = m.IdMallaCurricularNavigation.IdMateria,
-                    MateriaCodigo = m.IdMallaCurricularNavigation.IdMateriaNavigation.Codigo,
-                    MateriaNombre = m.IdMallaCurricularNavigation.IdMateriaNavigation.Nombre,
-                    IdDocente = m.IdDocente,
-                    DocenteNombreCompleto = $"{m.IdDocenteNavigation.IdUsuarioNavigation.Nombre} {m.IdDocenteNavigation.IdUsuarioNavigation.Apellido}",
-                    CupoLimite = m.CupoLimite,
-                    TotalInscritos = m.InscripcionGrupos.Count(ig => ig.Activo),
-                    Activo = m.Activo
-                })
-                .ToListAsync();
-
-            return Ok(items);
-        }
-
-        [HttpGet("calendarios-semanales")]
-        public async Task<ActionResult<List<CalendarioSemanalDto>>> ListarCalendarioSemanal([FromQuery] Guid idMateriaPorGrupo, [FromQuery] bool? activo)
-        {
-            var query = _context.CalendarioSemanals
-                .Include(cs => cs.IdAulaNavigation)
-                .Include(cs => cs.IdDiaNavigation)
-                .Where(cs => cs.IdMateriaPorGrupo == idMateriaPorGrupo)
-                .AsNoTracking()
-                .AsQueryable();
-
-            if (activo.HasValue)
-            {
-                query = query.Where(cs => cs.Activo == activo.Value);
-            }
-
-            var items = await query
-                .OrderBy(cs => cs.IdDia)
-                .ThenBy(cs => cs.HoraInicio)
-                .Select(cs => new CalendarioSemanalDto
-                {
-                    Id = cs.Id,
-                    IdMateriaPorGrupo = cs.IdMateriaPorGrupo,
-                    IdAula = cs.IdAula,
-                    AulaCodigo = cs.IdAulaNavigation.Codigo,
-                    AulaNombre = cs.IdAulaNavigation.Nombre,
-                    IdDia = cs.IdDia,
-                    DiaNombre = cs.IdDiaNavigation.Nombre,
-                    HoraInicio = cs.HoraInicio,
-                    HoraFin = cs.HoraFin,
-                    Activo = cs.Activo
-                })
-                .ToListAsync();
-
-            return Ok(items);
+                Id = instancia.Id,
+                IdPeriodoEscolar = instancia.IdPeriodoEscolar,
+                NombrePeriodoEscolar = periodo.NombrePeriodoEscolar,
+                IdDetallePlanAcademico = instancia.IdDetallePlanAcademico,
+                PlanCodigo = detallePlan.IdPlanAcademicoNavigation.Codigo,
+                CicloNombre = detallePlan.IdCicloAcademicoNavigation.Nombre,
+                PeriodoNombre = detallePlan.IdPeriodoAcademicoNavigation.Nombre,
+                Nombre = instancia.Nombre,
+                FechaInicio = instancia.FechaInicio,
+                FechaFin = instancia.FechaFin,
+                Activo = instancia.Activo
+            });
         }
 
         [HttpGet("calendarios")]
@@ -271,8 +279,8 @@ namespace unhsjm_asistencia_backend.Controllers
 
             if (fecha.HasValue)
             {
-                var inicio = fecha.Value.ToDateTime(TimeOnly.MinValue);
-                var fin = fecha.Value.ToDateTime(TimeOnly.MaxValue);
+                var inicio = DateTime.SpecifyKind(fecha.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
+                var fin = DateTime.SpecifyKind(fecha.Value.ToDateTime(TimeOnly.MaxValue), DateTimeKind.Utc);
                 query = query.Where(c => c.FechaInicio >= inicio && c.FechaInicio <= fin);
             }
 
@@ -293,46 +301,6 @@ namespace unhsjm_asistencia_backend.Controllers
                     FechaFin = c.FechaFin,
                     Activo = c.Activo,
                     EstadoAsistencia = c.Asistencium == null ? "PENDIENTE" : "REGISTRADA"
-                })
-                .ToListAsync();
-
-            return Ok(items);
-        }
-
-        [HttpGet("inscripciones-grupo")]
-        public async Task<ActionResult<List<InscripcionGrupoDto>>> ListarInscripcionesPorCurso([FromQuery] Guid idMateriaPorGrupo, [FromQuery] Guid? idEstudiante, [FromQuery] bool? activo)
-        {
-            var query = _context.InscripcionGrupos
-                .Include(ig => ig.IdEstudianteNavigation)
-                .Where(ig => ig.IdMateriaPorGrupo == idMateriaPorGrupo)
-                .AsNoTracking()
-                .AsQueryable();
-
-            if (idEstudiante.HasValue)
-            {
-                query = query.Where(ig => ig.IdEstudiante == idEstudiante.Value);
-            }
-
-            if (activo.HasValue)
-            {
-                query = query.Where(ig => ig.Activo == activo.Value);
-            }
-
-            var items = await query
-                .OrderBy(ig => ig.IdEstudianteNavigation.PrimerApellido)
-                .ThenBy(ig => ig.IdEstudianteNavigation.Nombres)
-                .Select(ig => new InscripcionGrupoDto
-                {
-                    Id = ig.Id,
-                    IdMateriaPorGrupo = ig.IdMateriaPorGrupo,
-                    IdEstudiante = ig.IdEstudiante,
-                    CodigoUnico = ig.IdEstudianteNavigation.CodigoUnico,
-                    Carnet = ig.IdEstudianteNavigation.Carnet,
-                    Nombres = ig.IdEstudianteNavigation.Nombres,
-                    PrimerApellido = ig.IdEstudianteNavigation.PrimerApellido,
-                    SegundoApellido = ig.IdEstudianteNavigation.SegundoApellido,
-                    FechaInscripcion = ig.FechaInscripcion,
-                    Activo = ig.Activo
                 })
                 .ToListAsync();
 
