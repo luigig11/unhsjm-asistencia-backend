@@ -1,6 +1,7 @@
 using unhsjm_asistencia_backend.Authentication;
 using unhsjm_asistencia_backend.Commands.Abstractions;
 using unhsjm_asistencia_backend.Commands.Auth;
+using unhsjm_asistencia_backend.Commands.Roles;
 using unhsjm_asistencia_backend.Commands.Users;
 using unhsjm_asistencia_backend.Data;
 using unhsjm_asistencia_backend.Middleware;
@@ -39,6 +40,10 @@ namespace unhsjm_asistencia_backend
             builder.Services.AddScoped<GetUserByIdCommand>();
             builder.Services.AddScoped<UpdateUserCommand>();
             builder.Services.AddScoped<DeleteUserCommand>();
+            builder.Services.AddScoped<ListRolesCommand>();
+            builder.Services.AddScoped<CreateRoleCommand>();
+            builder.Services.AddScoped<UpdateRoleCommand>();
+            builder.Services.AddScoped<DeleteRoleCommand>();
 
 
             builder.Services.AddControllers();
