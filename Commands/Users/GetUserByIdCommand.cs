@@ -1,6 +1,7 @@
 ﻿using unhsjm_asistencia_backend.Commands.Abstractions;
 using unhsjm_asistencia_backend.Exceptions;
 using unhsjm_asistencia_backend.Repositories.Interfaces;
+using unhsjm_asistencia_backend.DTOs.Users;
 
 namespace unhsjm_asistencia_backend.Commands.Users
 {
@@ -23,7 +24,7 @@ namespace unhsjm_asistencia_backend.Commands.Users
         public override async Task<UserDetailDto> ExecuteAsync(CancellationToken cancellationToken = default)
         {
             var user = await _userRepository.GetByIdWithTeacherAsync(_userId, cancellationToken)
-                ?? throw new NotFoundApiException($"User with id '{_userId}' was not found.");
+                ?? throw new NotFoundApiException($"Usuario con id '{_userId}' no fue encontrad.");
 
             return new UserDetailDto
             {

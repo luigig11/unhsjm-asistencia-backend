@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using unhsjm_asistencia_backend.Commands.Abstractions;
 using unhsjm_asistencia_backend.DTOs.Users;
+using unhsjm_asistencia_backend.DTOs.Common;
+using unhsjm_asistencia_backend.Commands.Users;
 
 namespace unhsjm_asistencia_backend.Controllers
 {
