@@ -1,6 +1,8 @@
 using unhsjm_asistencia_backend.Authentication;
 using unhsjm_asistencia_backend.Commands.Abstractions;
 using unhsjm_asistencia_backend.Commands.Auth;
+using unhsjm_asistencia_backend.Commands.Carrers;
+using unhsjm_asistencia_backend.Commands.Departments;
 using unhsjm_asistencia_backend.Commands.Permissions;
 using unhsjm_asistencia_backend.Commands.Roles;
 using unhsjm_asistencia_backend.Commands.Students;
@@ -33,6 +35,8 @@ namespace unhsjm_asistencia_backend
             builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
             builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+            builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+            builder.Services.AddScoped<ICareerRepository, CareerRepository>();
 
             //Comandos
             builder.Services.AddScoped<ICommandInvoker, CommandInvoker>();
@@ -63,6 +67,16 @@ namespace unhsjm_asistencia_backend
             builder.Services.AddScoped<CreateStudentCommand>();
             builder.Services.AddScoped<UpdateStudentCommand>();
             builder.Services.AddScoped<DeleteStudentCommand>();
+            builder.Services.AddScoped<ListDepartmentsCommand>();
+            builder.Services.AddScoped<GetDepartmentByIdCommand>();
+            builder.Services.AddScoped<CreateDepartmentCommand>();
+            builder.Services.AddScoped<UpdateDepartmentCommand>();
+            builder.Services.AddScoped<DeleteDepartmentCommand>();
+            builder.Services.AddScoped<ListCareersCommand>();
+            builder.Services.AddScoped<GetCareerByIdCommand>();
+            builder.Services.AddScoped<CreateCareerCommand>();
+            builder.Services.AddScoped<UpdateCareerCommand>();
+            builder.Services.AddScoped<DeleteCareerCommand>();
 
 
             builder.Services.AddControllers();
