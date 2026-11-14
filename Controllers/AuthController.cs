@@ -16,15 +16,24 @@ namespace unhsjm_asistencia_backend.Controllers
         private readonly ICommandInvoker _commandInvoker;
         private readonly RegisterUserCommand _registerUserCommand;
         private readonly LoginCommand _loginCommand;
+        private readonly RefreshTokenCommand _refreshTokenCommand;
+        private readonly LogoutCommand _logoutCommand;
+        private readonly GetCurrentProfileCommand _getCurrentProfileCommand;
 
         public AuthController(
             ICommandInvoker commandInvoker, 
             RegisterUserCommand registerUserCommand,
-            LoginCommand loginCommand)
+            LoginCommand loginCommand,
+            RefreshTokenCommand refreshTokenCommand,
+            LogoutCommand logoutCommand,
+            GetCurrentProfileCommand getCurrentProfileCommand)
         {
             _commandInvoker = commandInvoker;
             _registerUserCommand = registerUserCommand;
             _loginCommand = loginCommand;
+            _refreshTokenCommand = refreshTokenCommand;
+            _logoutCommand = logoutCommand;
+            _getCurrentProfileCommand = getCurrentProfileCommand;
         }
 
         [HttpPost("login")]
@@ -45,102 +54,31 @@ namespace unhsjm_asistencia_backend.Controllers
             return StatusCode(StatusCodes.Status201Created, result);
         }
 
-        //[HttpPost("refresh")]
-        //public ActionResult Refresh([FromBody] RefreshTokenRequestDto dto)
-        //{
-        //    var tokenFake = Guid.NewGuid().ToString("N");
-        //    var refreshFake = Guid.NewGuid().ToString("N");
+        [HttpPost("refresh")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RefreshSessionAsync([FromBody] RefreshTokenRequestDto dto,CancellationToken cancellationToken)
+        {
+            var result = await _commandInvoker.InvokeAsync(_refreshTokenCommand.WithRequest(dto), cancellationToken);
+            return Ok(result);
+        }
 
-        //    return Ok(new
-        //    {
-        //        access_token = $"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.{tokenFake}",
-        //        refresh_token = refreshFake,
-        //        expires_in = 3600
-        //    });
-        //}
+        [HttpPost("logout")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> LogoutAsync(CancellationToken cancellationToken)
+        {
+            await _commandInvoker.InvokeAsync(_logoutCommand, cancellationToken);
+            return NoContent();
+        }
 
-        //[HttpPost("logout")]
-        //public IActionResult Logout()
-        //{
-        //    return NoContent();
-        //}
-
-        //[HttpGet("me")]
-        //public async Task<ActionResult<UserProfileDto>> GetPerfilActual()
-        //{
-        //    var authHeader = Request.Headers["Authorization"].ToString();
-        //    Usuario? user = null;
-
-        //    if (!string.IsNullOrEmpty(authHeader))
-        //    {
-        //        var cleanToken = authHeader.StartsWith("Bearer ") ? authHeader.Substring(7).Trim() : authHeader.Trim();
-        //        if (cleanToken.StartsWith("UNHSJM."))
-        //        {
-        //            var parts = cleanToken.Substring("UNHSJM.".Length).Split('.');
-        //            if (parts.Length > 0 && Guid.TryParse(parts[0], out var tokenUserId))
-        //            {
-        //                user = await _context.Usuarios
-        //                    .Include(u => u.IdRolNavigation)
-        //                    .Include(u => u.Docente)
-        //                    .Include(u => u.AuthUser)
-        //                    .FirstOrDefaultAsync(u => u.Activo && u.Id == tokenUserId);
-        //            }
-        //        }
-        //    }
-
-        //    if (user == null && Guid.TryParse(Request.Query["idUsuario"], out var qUserId))
-        //    {
-        //        user = await _context.Usuarios
-        //            .Include(u => u.IdRolNavigation)
-        //            .Include(u => u.Docente)
-        //            .Include(u => u.AuthUser)
-        //            .FirstOrDefaultAsync(u => u.Activo && u.Id == qUserId);
-        //    }
-
-        //    if (user == null)
-        //    {
-        //        user = await _context.Usuarios
-        //            .Include(u => u.IdRolNavigation)
-        //            .Include(u => u.Docente)
-        //            .Include(u => u.AuthUser)
-        //            .FirstOrDefaultAsync(u => u.Activo);
-        //    }
-
-        //    if (user == null)
-        //    {
-        //        return NotFound(new
-        //        {
-        //            status = 404,
-        //            error = "NOT_FOUND",
-        //            message = "Perfil de usuario no encontrado."
-        //        });
-        //    }
-
-        //    return Ok(new UserProfileDto
-        //    {
-        //        IdUsuario = user.Id,
-        //        IdUser = user.IdUser,
-        //        Email = user.AuthUser?.Email ?? $"{user.Nombre.ToLower()}@unhsjm.edu.ni",
-        //        Cedula = user.Cedula,
-        //        Nombre = user.Nombre,
-        //        Apellido = user.Apellido,
-        //        Genero = "M",
-        //        FechaNacimiento = user.FechaNacimiento,
-        //        Rol = new RolResumenDto
-        //        {
-        //            Id = user.IdRolNavigation.Id,
-        //            Code = user.IdRolNavigation.Code,
-        //            Nombre = user.IdRolNavigation.Nombre
-        //        },
-        //        Docente = user.Docente != null ? new DocenteResumenPerfilDto
-        //        {
-        //            Id = user.Docente.Id,
-        //            CodigoEmpleado = user.Docente.CodigoEmpleado,
-        //            IdDireccion = user.Docente.IdDireccion,
-        //            TipoContratacion = "FIJO"
-        //        } : null,
-        //        Permisos = new List<PermisoPerfilDto>()
-        //    });
-        //}
+        [HttpGet("me")]
+        [Authorize]
+        [ProducesResponseType(typeof(CurrentProfileResponseDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetCurrentProfileAsync(CancellationToken cancellationToken)
+        {
+            var result = await _commandInvoker.InvokeAsync(_getCurrentProfileCommand, cancellationToken);
+            return Ok(result);
+        }
     }
 }

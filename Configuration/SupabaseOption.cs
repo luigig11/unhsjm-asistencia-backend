@@ -6,7 +6,6 @@
 
         public string Url { get; set; } = string.Empty;
         public string AnonKey { get; set; } = string.Empty;
-        public string JwtSecret { get; set; } = string.Empty;
         public string ValidIssuer { get; set; } = string.Empty;
         public string ValidAudience { get; set; } = "authenticated";
     }
