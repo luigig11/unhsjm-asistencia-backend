@@ -13,114 +13,28 @@ namespace unhsjm_asistencia_backend.Controllers
     [Route("api/v1/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _context; //BORRAR
         private readonly ICommandInvoker _commandInvoker;
         private readonly RegisterUserCommand _registerUserCommand;
+        private readonly LoginCommand _loginCommand;
 
-        public AuthController(AppDbContext context, ICommandInvoker commandInvoker, RegisterUserCommand registerUserCommand)
+        public AuthController(
+            ICommandInvoker commandInvoker, 
+            RegisterUserCommand registerUserCommand,
+            LoginCommand loginCommand)
         {
-            _context = context; //BORRAR
             _commandInvoker = commandInvoker;
             _registerUserCommand = registerUserCommand;
+            _loginCommand = loginCommand;
         }
 
-        //[HttpPost("login")]
-        //public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginRequestDto dto)
-        //{
-        //    var emailInput = dto.Email.Trim().ToLower();
-
-            
-        //    var authUser = await _context.AuthUsers
-        //        .FirstOrDefaultAsync(a => a.Email != null && a.Email.ToLower() == emailInput);
-
-        //    Usuario? user = null;
-
-        //    if (authUser != null)
-        //    {
-        //        user = await _context.Usuarios
-        //            .Include(u => u.IdRolNavigation)
-        //            .Include(u => u.Docente)
-        //            .Include(u => u.AuthUser)
-        //            .FirstOrDefaultAsync(u => u.Activo && u.IdUser == authUser.Id);
-        //    }
-
-            
-        //    if (user == null)
-        //    {
-        //        var alias = emailInput.Contains('@') ? emailInput.Split('@')[0] : emailInput;
-        //        user = await _context.Usuarios
-        //            .Include(u => u.IdRolNavigation)
-        //            .Include(u => u.Docente)
-        //            .Include(u => u.AuthUser)
-        //            .FirstOrDefaultAsync(u => u.Activo && (
-        //                u.Nombre.ToLower() == alias || 
-        //                u.Nombre.ToLower() == emailInput || 
-        //                (u.Cedula != null && u.Cedula == dto.Email.Trim())
-        //            ));
-
-        //        if (user?.IdUser != null && authUser == null)
-        //        {
-        //            authUser = await _context.AuthUsers.FindAsync(user.IdUser);
-        //        }
-        //    }
-
-        //    if (user == null)
-        //    {
-        //        return Unauthorized(new
-        //        {
-        //            status = 401,
-        //            error = "UNAUTHORIZED",
-        //            message = "Credenciales incorrectas o usuario inactivo."
-        //        });
-        //    }
-
-            
-        //    if (authUser?.EncryptedPassword != null && !string.IsNullOrWhiteSpace(dto.Password))
-        //    {
-        //        bool passwordMatches = false;
-        //        try
-        //        {
-        //            passwordMatches = BCrypt.Net.BCrypt.Verify(dto.Password, authUser.EncryptedPassword);
-        //        }
-        //        catch
-        //        {
-        //            passwordMatches = (dto.Password == authUser.EncryptedPassword);
-        //        }
-
-        //        if (!passwordMatches)
-        //        {
-        //            return Unauthorized(new
-        //            {
-        //                status = 401,
-        //                error = "UNAUTHORIZED",
-        //                message = "Contraseña incorrecta."
-        //            });
-        //        }
-        //    }
-
-        //    var tokenFake = Guid.NewGuid().ToString("N");
-        //    var refreshFake = Guid.NewGuid().ToString("N");
-
-        //    return Ok(new AuthResponseDto
-        //    {
-        //        AccessToken = $"UNHSJM.{user.Id}.{tokenFake}",
-        //        RefreshToken = refreshFake,
-        //        ExpiresIn = 3600,
-        //        Usuario = new UsuarioSesionDto
-        //        {
-        //            Id = user.Id,
-        //            IdUser = user.IdUser,
-        //            IdRol = user.IdRol,
-        //            RolCode = user.IdRolNavigation.Code,
-        //            IdDocente = user.Docente?.Id,
-        //            Cedula = user.Cedula,
-        //            Nombre = user.Nombre,
-        //            Apellido = user.Apellido,
-        //            Genero = "M",
-        //            Activo = user.Activo
-        //        }
-        //    });
-        //}
+        [HttpPost("login")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequestDto dto, CancellationToken cancellationToken)
+        {
+            var result = await _commandInvoker.InvokeAsync(_loginCommand.WithRequest(dto), cancellationToken);
+            return Ok(result);
+        }
 
         [HttpPost("register")]
         [AllowAnonymous]

@@ -13,9 +13,6 @@ namespace unhsjm_asistencia_backend.DTOs.Auth
         [JsonPropertyName("id_rol")]
         public Guid RoleId { get; set; }
 
-        [JsonPropertyName("codigo_unico")]
-        public string? UniqueCode { get; set; }
-
         [JsonPropertyName("cedula")]
         public string? NationalId { get; set; }
 

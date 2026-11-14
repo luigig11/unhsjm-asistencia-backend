@@ -4,7 +4,6 @@
     {
         public Guid Id { get; set; }
         public Guid? AuthUserId { get; set; }
-        public string? UniqueCode { get; set; } = string.Empty;
         public Guid RoleId { get; set; }
         public string? NationalId { get; set; }
         public string FirstName { get; set; } = string.Empty;
@@ -18,7 +17,6 @@
     {
         public Guid Id { get; set; }
         public Guid? AuthUserId { get; set; }
-        public string? UniqueCode { get; set; } = string.Empty;
         public Guid RoleId { get; set; }
         public string RoleCode { get; set; } = string.Empty;
         public string RoleName { get; set; } = string.Empty;

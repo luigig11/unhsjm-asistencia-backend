@@ -24,9 +24,6 @@ namespace unhsjm_asistencia_backend.DTOs.Auth
         [JsonPropertyName("id_user")]
         public Guid? AuthUserId { get; init; }
 
-        [JsonPropertyName("codigo_unico")]
-        public string UniqueCode { get; init; } = string.Empty;
-
         [JsonPropertyName("id_rol")]
         public Guid RoleId { get; init; }
 
@@ -71,9 +68,6 @@ namespace unhsjm_asistencia_backend.DTOs.Auth
 
         [JsonPropertyName("id_user")]
         public Guid? AuthUserId { get; init; }
-
-        [JsonPropertyName("codigo_unico")]
-        public string Unique_Code { get; init; } = string.Empty;
 
         [JsonPropertyName("id_rol")]
         public Guid RoleId { get; init; }

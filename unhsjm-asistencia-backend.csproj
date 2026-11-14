@@ -20,8 +20,4 @@
     <PackageReference Include="Supabase" Version="8.11.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Commands\Auth\" />
-  </ItemGroup>
-
 </Project>

@@ -45,7 +45,6 @@ namespace unhsjm_asistencia_backend.Commands.Auth
             {
                 AuthUserId = null,
                 RoleId = dto.RoleId,
-                UniqueCode = dto.UniqueCode,
                 NationalId = string.IsNullOrWhiteSpace(dto.NationalId) ? null : dto.NationalId.Trim(),
                 FirstName = dto.FirstName.Trim(),
                 LastName = dto.LastName.Trim(),
@@ -102,7 +101,6 @@ namespace unhsjm_asistencia_backend.Commands.Auth
                 {
                     Id = createdUserId,
                     AuthUserId = authUserId,
-                    UniqueCode = userEntity.UniqueCode!,
                     RoleId = dto.RoleId,
                     RoleCode = role.Code,
                     NationalId = userEntity.NationalId,

@@ -7,9 +7,6 @@ namespace unhsjm_asistencia_backend.DTOs.Users
         [FromQuery(Name = "search")]
         public string? Search { get; set; }
 
-        [FromQuery(Name = "codigo_unico")]
-        public string? Unique_Code { get; set; }
-
         [FromQuery(Name = "id_rol")]
         public Guid? RoleId { get; set; }
 
