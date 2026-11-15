@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using unhsjm_asistencia_backend.Data;
 using unhsjm_asistencia_backend.DTOs.Auth;
-using unhsjm_asistencia_backend.Models;
 using unhsjm_asistencia_backend.Commands.Abstractions;
 using unhsjm_asistencia_backend.Commands.Auth;
 
