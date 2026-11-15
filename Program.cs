@@ -217,7 +217,7 @@ namespace unhsjm_asistencia_backend
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173", "https://localhost:5173", "https://main.d199znpu6jnx0j.amplifyapp.com/")
+                    policy.WithOrigins("http://localhost:5173", "https://localhost:5173", "https://main.d199znpu6jnx0j.amplifyapp.com")
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -232,8 +232,8 @@ namespace unhsjm_asistencia_backend
             {
                 app.MapOpenApi();
             }
-            app.UseHttpsRedirection();
             app.UseCors("AllowFrontend");
+            app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
