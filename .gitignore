@@ -41,6 +41,7 @@ coverage.json
 # Permite subir la plantilla base appsettings.json, pero ignora configuraciones locales
 appsettings.*.local.json
 appsettings.Local.json
+appsettings.Production.json
 
 # Secretos de usuario (.NET User Secrets)
 secrets.json
