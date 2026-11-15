@@ -5,10 +5,13 @@ using unhsjm_asistencia_backend.Commands.Abstractions;
 using unhsjm_asistencia_backend.Commands.AcademicCycles;
 using unhsjm_asistencia_backend.Commands.AcademicPeriods;
 using unhsjm_asistencia_backend.Commands.AcademicPeriodTypes;
+using unhsjm_asistencia_backend.Commands.AcademicPlanDetails;
+using unhsjm_asistencia_backend.Commands.AcademicPlans;
 using unhsjm_asistencia_backend.Commands.Auth;
 using unhsjm_asistencia_backend.Commands.Carrers;
 using unhsjm_asistencia_backend.Commands.Classrooms;
 using unhsjm_asistencia_backend.Commands.ClassroomTypes;
+using unhsjm_asistencia_backend.Commands.CurricularGridItems;
 using unhsjm_asistencia_backend.Commands.Days;
 using unhsjm_asistencia_backend.Commands.Departments;
 using unhsjm_asistencia_backend.Commands.EventTypes;
@@ -16,6 +19,7 @@ using unhsjm_asistencia_backend.Commands.Modalities;
 using unhsjm_asistencia_backend.Commands.Permissions;
 using unhsjm_asistencia_backend.Commands.Roles;
 using unhsjm_asistencia_backend.Commands.Students;
+using unhsjm_asistencia_backend.Commands.SubjectPrerequisites;
 using unhsjm_asistencia_backend.Commands.Subjects;
 using unhsjm_asistencia_backend.Commands.Teachers;
 using unhsjm_asistencia_backend.Commands.UniversityCenters;
@@ -60,6 +64,10 @@ namespace unhsjm_asistencia_backend
             builder.Services.AddScoped<IDayRepository, DayRepository>();
             builder.Services.AddScoped<IEventTypeRepository, EventTypeRepository>();
             builder.Services.AddScoped<IAbsenceReasonRepository, AbsenceReasonRepository>();
+            builder.Services.AddScoped<IAcademicPlanRepository, AcademicPlanRepository>();
+            builder.Services.AddScoped<IAcademicPlanDetailRepository, AcademicPlanDetailRepository>();
+            builder.Services.AddScoped<ICurricularGridRepository, CurricularGridRepository>();
+            builder.Services.AddScoped<ISubjectPrerequisiteRepository, SubjectPrerequisiteRepository>();
 
             //Comandos
             builder.Services.AddScoped<ICommandInvoker, CommandInvoker>();
@@ -136,8 +144,18 @@ namespace unhsjm_asistencia_backend
             builder.Services.AddScoped<ListAbsenceReasonsCommand>();
             builder.Services.AddScoped<CreateAbsenceReasonCommand>();
             builder.Services.AddScoped<UpdateAbsenceReasonCommand>();
-
-
+            builder.Services.AddScoped<ListAcademicPlansCommand>();
+            builder.Services.AddScoped<GetAcademicPlanByIdCommand>();
+            builder.Services.AddScoped<GetFullCurriculumGridCommand>();
+            builder.Services.AddScoped<CreateAcademicPlanCommand>();
+            builder.Services.AddScoped<UpdateAcademicPlanCommand>();
+            builder.Services.AddScoped<ListAcademicPlanDetailsCommand>();
+            builder.Services.AddScoped<CreateAcademicPlanDetailCommand>();
+            builder.Services.AddScoped<UpdateAcademicPlanDetailCommand>();
+            builder.Services.AddScoped<CreateCurricularGridItemCommand>();
+            builder.Services.AddScoped<UpdateCurricularGridItemCommand>();
+            builder.Services.AddScoped<CreateSubjectPrerequisiteCommand>();
+            builder.Services.AddScoped<DeleteSubjectPrerequisiteCommand>();
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
