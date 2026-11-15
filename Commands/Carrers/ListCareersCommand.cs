@@ -1,5 +1,5 @@
 ﻿using unhsjm_asistencia_backend.Commands.Abstractions;
-using unhsjm_asistencia_backend.DTOs;
+using unhsjm_asistencia_backend.DTOs.Carrers;
 using unhsjm_asistencia_backend.Entities;
 using unhsjm_asistencia_backend.Repositories.Interfaces;
 

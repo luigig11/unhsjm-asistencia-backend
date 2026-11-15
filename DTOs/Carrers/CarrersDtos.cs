@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace unhsjm_asistencia_backend.DTOs
+namespace unhsjm_asistencia_backend.DTOs.Carrers
 {
     public sealed class CareerListItemDto
     {

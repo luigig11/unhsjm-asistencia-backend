@@ -1,8 +1,13 @@
+using plantilla.Repositories;
 using unhsjm_asistencia_backend.Authentication;
 using unhsjm_asistencia_backend.Commands.Abstractions;
+using unhsjm_asistencia_backend.Commands.AcademicCycles;
+using unhsjm_asistencia_backend.Commands.AcademicPeriods;
+using unhsjm_asistencia_backend.Commands.AcademicPeriodTypes;
 using unhsjm_asistencia_backend.Commands.Auth;
 using unhsjm_asistencia_backend.Commands.Carrers;
 using unhsjm_asistencia_backend.Commands.Departments;
+using unhsjm_asistencia_backend.Commands.Modalities;
 using unhsjm_asistencia_backend.Commands.Permissions;
 using unhsjm_asistencia_backend.Commands.Roles;
 using unhsjm_asistencia_backend.Commands.Students;
@@ -37,6 +42,10 @@ namespace unhsjm_asistencia_backend
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
             builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             builder.Services.AddScoped<ICareerRepository, CareerRepository>();
+            builder.Services.AddScoped<IModalityRepository, ModalityRepository>();
+            builder.Services.AddScoped<IAcademicPeriodTypeRepository, AcademicPeriodTypeRepository>();
+            builder.Services.AddScoped<IAcademicPeriodRepository, AcademicPeriodRepository>();
+            builder.Services.AddScoped<IAcademicCycleRepository, AcademicCycleRepository>();
 
             //Comandos
             builder.Services.AddScoped<ICommandInvoker, CommandInvoker>();
@@ -77,6 +86,22 @@ namespace unhsjm_asistencia_backend
             builder.Services.AddScoped<CreateCareerCommand>();
             builder.Services.AddScoped<UpdateCareerCommand>();
             builder.Services.AddScoped<DeleteCareerCommand>();
+            builder.Services.AddScoped<ListModalitiesCommand>();
+            builder.Services.AddScoped<CreateModalityCommand>();
+            builder.Services.AddScoped<UpdateModalityCommand>();
+            builder.Services.AddScoped<DeleteModalityCommand>();
+            builder.Services.AddScoped<ListAcademicPeriodTypesCommand>();
+            builder.Services.AddScoped<CreateAcademicPeriodTypeCommand>();
+            builder.Services.AddScoped<UpdateAcademicPeriodTypeCommand>();
+            builder.Services.AddScoped<DeleteAcademicPeriodTypeCommand>();
+            builder.Services.AddScoped<ListAcademicPeriodsCommand>();
+            builder.Services.AddScoped<CreateAcademicPeriodCommand>();
+            builder.Services.AddScoped<UpdateAcademicPeriodCommand>();
+            builder.Services.AddScoped<DeleteAcademicPeriodCommand>();
+            builder.Services.AddScoped<ListAcademicCyclesCommand>();
+            builder.Services.AddScoped<CreateAcademicCycleCommand>();
+            builder.Services.AddScoped<UpdateAcademicCycleCommand>();
+            builder.Services.AddScoped<DeleteAcademicCycleCommand>();
 
 
             builder.Services.AddControllers();
