@@ -22,6 +22,7 @@ using unhsjm_asistencia_backend.Commands.EventTypes;
 using unhsjm_asistencia_backend.Commands.GroupEnrollments;
 using unhsjm_asistencia_backend.Commands.Groups;
 using unhsjm_asistencia_backend.Commands.GroupSubjects;
+using unhsjm_asistencia_backend.Commands.Holidays;
 using unhsjm_asistencia_backend.Commands.Modalities;
 using unhsjm_asistencia_backend.Commands.Permissions;
 using unhsjm_asistencia_backend.Commands.Roles;
@@ -204,6 +205,9 @@ namespace unhsjm_asistencia_backend
             builder.Services.AddScoped<GetDashboardSummaryCommand>();
             builder.Services.AddScoped<GetMyTodaySessionsCommand>();
             builder.Services.AddScoped<GetMyCoursesCommand>();
+            builder.Services.AddScoped<ListHolidaysCommand>();
+            builder.Services.AddScoped<CreateHolidayCommand>();
+            builder.Services.AddScoped<UpdateHolidayCommand>();
 
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -213,7 +217,7 @@ namespace unhsjm_asistencia_backend
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
+                    policy.WithOrigins("http://localhost:5173", "https://localhost:5173", "http://localhost:5174", "https://localhost:5174")
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
